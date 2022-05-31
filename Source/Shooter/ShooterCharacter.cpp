@@ -3,6 +3,7 @@
 
 #include "ShooterCharacter.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 
 // Sets default values
@@ -35,6 +36,34 @@ void AShooterCharacter::BeginPlay()
 
 }
 
+void AShooterCharacter::MoveForward(float Value)
+{
+	if ((Controller != nullptr) && (Value != 0.f))
+	{
+		// 어느 방향이 forward인 지 찾는다.
+		const FRotator Rotation{ Controller->GetControlRotation() };
+		const FRotator YawRotation{ 0.f,Rotation.Yaw,0.f };
+
+		const FVector Direction{ FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X) };
+
+		AddMovementInput(Direction, Value);
+	}
+}
+
+void AShooterCharacter::MoveRight(float Value)
+{
+	if ((Controller != nullptr) && (Value != 0.f))
+	{
+		// 어느 방향이 right인 지 찾는다.
+		const FRotator Rotation{ Controller->GetControlRotation() };
+		const FRotator YawRotation{ 0.f,Rotation.Yaw,0.f };
+
+		const FVector Direction{ FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y) };
+
+		AddMovementInput(Direction, Value);
+	}
+}
+
 // Called every frame
 void AShooterCharacter::Tick(float DeltaTime)
 {
@@ -47,5 +76,10 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	// 입력 컴포넌트가 유효한 지 체크하는 매크로임
+	check(PlayerInputComponent);
+
+	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AShooterCharacter::MoveForward);
+	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AShooterCharacter::MoveRight);
 }
 
