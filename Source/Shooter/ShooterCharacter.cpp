@@ -4,6 +4,7 @@
 #include "ShooterCharacter.h"
 #include "Engine/World.h"
 #include "Sound/SoundCue.h"
+#include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/Controller.h"
@@ -118,6 +119,22 @@ void AShooterCharacter::FireWeapon()
 		if (MuzzleFlash)
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, SocketTransform);
+		}
+
+		// GetWorld()->LineTraceSingleByChannel은 라인트레이싱 함수고 FHitResult를 인자로 넘기면 FHitResult에 계산 결과를 갱신한다
+		// 시작과 끝점을 넘기면 그 사이에 뭐랑 부딪쳤는지에 대한 정보를 반환
+		// FQuat는 쿼터니온이고 쿼터니온은 회전에 관한 정보를 가지고 있다.
+		FHitResult FireHit;
+		const FVector Start{ SocketTransform.GetLocation() };
+		const FQuat Rotation{ SocketTransform.GetRotation() };
+		const FVector RotationAxis{ Rotation.GetAxisX() };
+		const FVector End{ Start + RotationAxis * 50'000.f };
+
+		GetWorld()->LineTraceSingleByChannel(FireHit, Start, End, ECollisionChannel::ECC_Visibility);
+		if (FireHit.bBlockingHit) // bBlockingHit이 true면 라인트레이싱에서 뭔가랑 부딪쳤다는 뜻
+		{
+			DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.f); // true면 라인이 계속 그려진다는 뜻.false면 그 다음 매개변수만큼 존재하다가 사라짐
+			DrawDebugPoint(GetWorld(), FireHit.Location, 5.f, FColor::Red, false, 2.f);
 		}
 	}
 
