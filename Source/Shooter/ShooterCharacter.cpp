@@ -2,6 +2,7 @@
 
 
 #include "ShooterCharacter.h"
+#include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
 // Sets default values
@@ -18,6 +19,13 @@ AShooterCharacter::AShooterCharacter()
 	CameraBoom->TargetArmLength = 300.f;			// The camera follows at the distance behind the character
 	// bUsePawnControlRotation을 true로 설정하면 스프링암이 컨트롤러의 회전값을 따라간다.
 	CameraBoom->bUsePawnControlRotation = true;		// Rotate the arm based on the controller
+	
+	// Create a follow camera
+	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+	// 아래의 함수에서 알 수 있는 것은 비단 카메라뿐만이 아니라 각종 컴포넌트들을 소켓에도 부착할 수 있다는 점.
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+	// 카메라는 스프링암을 기준으로 회전하지 않는다.
+	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 }
 
 // Called when the game starts or when spawned
