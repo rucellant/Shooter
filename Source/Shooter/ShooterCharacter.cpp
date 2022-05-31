@@ -10,6 +10,7 @@
 #include "GameFramework/Controller.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
@@ -130,16 +131,31 @@ void AShooterCharacter::FireWeapon()
 		const FVector RotationAxis{ Rotation.GetAxisX() };
 		const FVector End{ Start + RotationAxis * 50'000.f };
 
+		// 얘는 라인트레이싱의 결과와 상관없이 투사체가 나아가는 걸 표현하기 위한 거기 때문에 무조건 그린다
+		FVector BeamEndPoint{ End };
+
 		GetWorld()->LineTraceSingleByChannel(FireHit, Start, End, ECollisionChannel::ECC_Visibility);
 		if (FireHit.bBlockingHit) // bBlockingHit이 true면 라인트레이싱에서 뭔가랑 부딪쳤다는 뜻
 		{
-			DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.f); // true면 라인이 계속 그려진다는 뜻.false면 그 다음 매개변수만큼 존재하다가 사라짐
-			DrawDebugPoint(GetWorld(), FireHit.Location, 5.f, FColor::Red, false, 2.f);
+			//DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.f); // true면 라인이 계속 그려진다는 뜻.false면 그 다음 매개변수만큼 존재하다가 사라짐
+			//DrawDebugPoint(GetWorld(), FireHit.Location, 5.f, FColor::Red, false, 2.f);
+
+			BeamEndPoint = FireHit.Location;
 
 			// 충돌한 위치에 파티클을 생성한다
 			if (ImpactParticles)
 			{
 				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, FireHit.Location);
+			}
+		}
+
+		// 빔 렌더링
+		if (BeamParticles)
+		{
+			UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BeamParticles, SocketTransform);
+			if (Beam)
+			{
+				Beam->SetVectorParameter(FName("Target"), BeamEndPoint);
 			}
 		}
 	}
