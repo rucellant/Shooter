@@ -120,6 +120,14 @@ void AShooterCharacter::FireWeapon()
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, SocketTransform);
 		}
 	}
+
+	// 몽타주의 재생은 애님인스턴스로 재생한다.
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && HipFireMontage)
+	{
+		AnimInstance->Montage_Play(HipFireMontage);
+		AnimInstance->Montage_JumpToSection(FName("StartFire"));
+	}
 }
 
 // Called every frame
