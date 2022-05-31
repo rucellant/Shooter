@@ -3,6 +3,8 @@
 
 #include "ShooterCharacter.h"
 #include "Engine/World.h"
+#include "Sound/SoundCue.h"
+#include "Kismet/GameplayStatics.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -94,7 +96,15 @@ void AShooterCharacter::LookUpAtRate(float Rate)
 
 void AShooterCharacter::FireWeapon()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Fire Weapon."));
+	// FireSound는 사운드 큐인데 에디터에서 사운드 에셋을 가지고 큐로 만들어서 사용한다. 
+	if (FireSound)
+	{
+		// 사운드큐를 재생하는 것은 UGameplayStatics에서 구현된 PlaySound2D함수인데 
+		// UGameplayStatics클래스는 내부에 게임개발에 필요한 잡다한 것들이 여러가지 있어서 파보면 파볼수록 좋다.
+		// 그리고 지금 쓰는 사운드큐의 경우에 10개의 사운드를 랜덤으로 하나 뽑아서 사용하고 있는데 그 과정은 에디터에서 편집했으니
+		// 그 과정도 기억하면 좋다.
+		UGameplayStatics::PlaySound2D(this, FireSound);
+	}
 }
 
 // Called every frame

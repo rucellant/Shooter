@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "ShooterCharacter.generated.h"
 
+class USoundCue;
 class UCameraComponent;
 class USpringArmComponent;
 
@@ -69,6 +70,9 @@ private:
 	/** Base look up/down rate, in degree/seconds. Other scaling may affect final turn rate */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	float BaseLookUpRate;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	USoundCue* FireSound;
 
 public:
 	/** Returns CameraBoom subobject */
