@@ -7,6 +7,7 @@
 #include "ShooterCharacter.generated.h"
 
 class USoundCue;
+class UParticleSystem;
 class UCameraComponent;
 class USpringArmComponent;
 
@@ -71,8 +72,13 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	float BaseLookUpRate;
 
+	/** Randomized gunshot sound cue */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	USoundCue* FireSound;
+
+	/** Flash spawed at BarrelSocket */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	UParticleSystem* MuzzleFlash;
 
 public:
 	/** Returns CameraBoom subobject */

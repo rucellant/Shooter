@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/Controller.h"
+#include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -104,6 +105,20 @@ void AShooterCharacter::FireWeapon()
 		// 그리고 지금 쓰는 사운드큐의 경우에 10개의 사운드를 랜덤으로 하나 뽑아서 사용하고 있는데 그 과정은 에디터에서 편집했으니
 		// 그 과정도 기억하면 좋다.
 		UGameplayStatics::PlaySound2D(this, FireSound);
+	}
+
+	// 스켈레탈 메시에 장착한 소켓을 불러와서 해당 소켓의 위치를 구한 뒤 그 위치에 파티클을 생성한다.
+	// 단 여기서는 트랜스폼을 구한 뒤 거기서 Location값을 얻는다.
+	// 왜냐면 파티클은 UGameplayStatics::SpawnEmitterAtLocation()에서 생성하는데 이때 파라미터 값으로 트랜스폼을 넘겨야 해서
+	const USkeletalMeshSocket* BarrelSocket = GetMesh()->GetSocketByName(TEXT("BarrelSocket"));
+	if (BarrelSocket)
+	{
+		const FTransform SocketTransform = BarrelSocket->GetSocketTransform(GetMesh());
+		
+		if (MuzzleFlash)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, SocketTransform);
+		}
 	}
 }
 
