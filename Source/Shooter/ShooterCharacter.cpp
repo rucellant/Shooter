@@ -16,6 +16,11 @@ void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	UE_LOG(LogTemp, Warning, TEXT("BeginPlay() called!"));
+
+	// {}->int를 제외한 다른 자료 스타일로 초기화하면 에러가 난다
+	int myInt{ 42 };
+	UE_LOG(LogTemp, Warning, TEXT("int myInt: %d"), myInt);
 }
 
 // Called every frame
