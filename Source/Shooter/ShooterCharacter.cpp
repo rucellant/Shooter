@@ -135,6 +135,12 @@ void AShooterCharacter::FireWeapon()
 		{
 			DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.f); // true면 라인이 계속 그려진다는 뜻.false면 그 다음 매개변수만큼 존재하다가 사라짐
 			DrawDebugPoint(GetWorld(), FireHit.Location, 5.f, FColor::Red, false, 2.f);
+
+			// 충돌한 위치에 파티클을 생성한다
+			if (ImpactParticles)
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, FireHit.Location);
+			}
 		}
 	}
 
