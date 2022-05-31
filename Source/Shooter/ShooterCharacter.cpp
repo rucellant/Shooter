@@ -41,6 +41,14 @@ void AShooterCharacter::BeginPlay()
 	UE_LOG(LogTemp, Warning, TEXT("int: %d, float: %f, bool: %d"), myInt, myFloat, myBool);
 	// 매개변수 자리에 변수가 아니라 단순 데이터값을 넣어도 된다
 	// ex)UE_LOG(LogTemp, Warning, TEXT("bool myBool: %d"), false);
+
+	// ue4에서는 스트링을 쓸 때 FString타입의 스트링을 쓴다.
+	// *myString는 const TCHAR*(배열임)를 반환함. 이 방식은 C스타일로 스트링을 사용한다.
+	FString myString{ TEXT("My String!!!!") };
+	UE_LOG(LogTemp, Warning, TEXT("FString myString: %s"), *myString);
+
+	// GetName()은 인스턴스의 이름을 반환하는 함수
+	UE_LOG(LogTemp, Warning, TEXT("Name of instance: %s"), *GetName());
 }
 
 // Called every frame
