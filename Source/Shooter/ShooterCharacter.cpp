@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter() :
@@ -30,6 +31,19 @@ AShooterCharacter::AShooterCharacter() :
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	// 카메라는 스프링암을 기준으로 회전하지 않는다.
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+
+	// 아래의 세 변수는 캐릭터가 회전할 떄, 같이 따라서 회전하지 않도록 함.
+	// Dont rotate when the controller rotates. Let the controller only affect the camera.
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
+	bUseControllerRotationPitch = false;
+
+	// 캐릭터가 이동하는 방향으로 캐릭터의 룩이 회전하게 함
+	// Configure character movement
+	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 540.f, 0.f); // ... at this rotation rate.
+	GetCharacterMovement()->JumpZVelocity = 600.f;
+	GetCharacterMovement()->AirControl = 0.2f;
 }
 
 // Called when the game starts or when spawned
