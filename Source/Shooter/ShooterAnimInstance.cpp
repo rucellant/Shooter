@@ -30,17 +30,20 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 
 		// GetBaseAimRotation()은 컨트롤러가 어떠한 축(여기서는 x축을 기준으로 Yaw회전을 얼마나 했는지)을 기준으로
 		// 얼마나 회전했는 지를 반환
-		// UKismetMathLibrary::MakeRotFromX()도 마찬가지로 파라미터로 들어온 속도가 어떠한 축을 기준으로 어느 방향으로 향하는 지 반환
+		// UKismetMathLibrary::MakeRotFromX() : 입력 파라미터 벡터를 X축으로 하여 새로운 기저를 구축하고, 그 기저의 회전 행렬을 리턴한다.
 		FRotator AimRotation = ShooterCharacter->GetBaseAimRotation();
 		FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(ShooterCharacter->GetVelocity());
 
 		// UKismetMathLibrary::NormalizedDeltaRotator()는 AimRotation을 기준으로 MovementRotation가 얼만큼 회전한 상태인 지를 나타냄
 		MovementOffsetYaw = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotation, AimRotation).Yaw;
 
-		//LastMovementOffsetYaw = ShooterCharacter->GetVelocity().Size() > 0.f ? MovementOffsetYaw : 0.f;
+		// LastMovementOffsetYaw = ShooterCharacter->GetVelocity().Size() > 0.f ? MovementOffsetYaw : 0.f;
 		if (ShooterCharacter->GetVelocity().Size() > 0.f)
 			LastMovementOffsetYaw = MovementOffsetYaw;
 
+		// FRotator의 Yaw값은 X축을 바라보는 방향으로 0이고 우측으로 180도, 좌측으로 -180도로 구성된다.
+		// MovementRotation의 방향에서 AimRotation의 방향을 빼면 AimRotation을 축으로 그 차이만큼 회전한 결과가 된다.
+		// 따라서 그 결과인 회전값(-180~180)에 따라 애니메이션이 달라진다.
 	}
 }
 
