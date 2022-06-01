@@ -44,6 +44,8 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 		// FRotator의 Yaw값은 X축을 바라보는 방향으로 0이고 우측으로 180도, 좌측으로 -180도로 구성된다.
 		// MovementRotation의 방향에서 AimRotation의 방향을 빼면 AimRotation을 축으로 그 차이만큼 회전한 결과가 된다.
 		// 따라서 그 결과인 회전값(-180~180)에 따라 애니메이션이 달라진다.
+
+		bAiming = ShooterCharacter->GetAiming();
 	}
 }
 
