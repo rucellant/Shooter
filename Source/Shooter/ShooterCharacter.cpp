@@ -156,12 +156,26 @@ void AShooterCharacter::FireWeapon()
 			{
 				// Beam end point is now trace hit location
 				BeamEndPoint = ScreenTraceHit.Location;
+			}
 
-				// 충돌한 위치에 파티클을 생성한다
-				if (ImpactParticles)
-				{
-					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, ScreenTraceHit.Location);
-				}
+			// 만약 첫번째 라인트레이스로 충돌이 발생한 경우 충돌지점과 총구간의 라이트레이싱을 한번 더 수행해서
+			// 그 사이에 어떤 오브젝트가 있으면 그 위치에 임팩트 파티클이 생성되게 한다
+			// Perfrom a second trace, this time from the gun barrel
+			FHitResult WeaponTraceHit;
+			const FVector WeaponTraceStart{ SocketTransform.GetLocation() };
+			const FVector WeaponTraceEnd{ BeamEndPoint };
+			GetWorld()->LineTraceSingleByChannel(WeaponTraceHit, WeaponTraceStart, WeaponTraceEnd, ECollisionChannel::ECC_Visibility);
+
+			if (WeaponTraceHit.bBlockingHit) // object between barrel and BeamEndPoint?
+			{
+				BeamEndPoint = WeaponTraceHit.Location;
+			}
+
+			// 충돌한 위치에 파티클을 생성한다
+			// Spawn impact particles after updating BeamEndPoint
+			if (ImpactParticles)
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, BeamEndPoint);
 			}
 
 			// 빔 렌더링
