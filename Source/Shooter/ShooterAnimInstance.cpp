@@ -3,6 +3,7 @@
 
 #include "ShooterAnimInstance.h"
 #include "ShooterCharacter.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
@@ -26,6 +27,26 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 
 		// is the character accelerating?
 		bIsAccelerating = ShooterCharacter->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0.f ? true : false;
+
+		// GetBaseAimRotation()은 컨트롤러가 어떠한 축(여기서는 x축을 기준으로 Yaw회전을 얼마나 했는지)을 기준으로
+		// 얼마나 회전했는 지를 반환
+		// UKismetMathLibrary::MakeRotFromX()도 마찬가지로 파라미터로 들어온 속도가 어떠한 축을 기준으로 어느 방향으로 향하는 지 반환
+		FRotator AimRotation = ShooterCharacter->GetBaseAimRotation();
+		FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(ShooterCharacter->GetVelocity());
+
+		// UKismetMathLibrary::NormalizedDeltaRotator()는 두 로테이터간의 회전값을 뱉어냄
+		MovementOffsetYaw = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotation, AimRotation).Yaw;
+
+		//FString RotationMessage = FString::Printf(TEXT("Base Aim Rotation: %f"), AimRotation.Yaw);
+		//FString MovementRotationMessage = FString::Printf(TEXT("Movement Rotation: %f"), MovementRotation.Yaw);
+		//FString OffsetMessage = FString::Printf(TEXT("Movement Offset Yaw: %f"), MovementOffsetYaw);
+
+		//if (GEngine)
+		//{
+		//	GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::White, OffsetMessage);
+		//	//GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::White, RotationMessage);
+		//	//GEngine->AddOnScreenDebugMessage(2, 0.f, FColor::White, MovementRotationMessage);
+		//}
 	}
 }
 
