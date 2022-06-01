@@ -29,7 +29,8 @@ AShooterCharacter::AShooterCharacter() :
 	CameraBoom->TargetArmLength = 300.f;			// The camera follows at the distance behind the character
 	// bUsePawnControlRotation을 true로 설정하면 스프링암이 컨트롤러의 회전값을 따라간다.
 	CameraBoom->bUsePawnControlRotation = true;		// Rotate the arm based on the controller
-	
+	CameraBoom->SocketOffset = FVector(0.f, 50.f, 50.f);
+
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	// 아래의 함수에서 알 수 있는 것은 비단 카메라뿐만이 아니라 각종 컴포넌트들을 소켓에도 부착할 수 있다는 점.
@@ -37,15 +38,15 @@ AShooterCharacter::AShooterCharacter() :
 	// 카메라는 스프링암을 기준으로 회전하지 않는다.
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-	// 아래의 세 변수는 캐릭터가 회전할 떄, 같이 따라서 회전하지 않도록 함.
+	// 아래의 세 변수는 캐릭터가 회전할 떄, 같이 따라서 회전하지 않도록 함. 만약 ture면.
 	// Dont rotate when the controller rotates. Let the controller only affect the camera.
 	bUseControllerRotationYaw = false;
-	bUseControllerRotationRoll = false;
+	bUseControllerRotationRoll = true;
 	bUseControllerRotationPitch = false;
 
-	// 캐릭터가 이동하는 방향으로 캐릭터의 룩이 회전하게 함
+	// 캐릭터가 이동하는 방향으로 캐릭터의 룩이 회전하게 함. true면.
 	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...
+	GetCharacterMovement()->bOrientRotationToMovement = false; // Character moves in the direction of input...
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 540.f, 0.f); // ... at this rotation rate.
 	GetCharacterMovement()->JumpZVelocity = 600.f;
 	GetCharacterMovement()->AirControl = 0.2f;
@@ -152,6 +153,11 @@ void AShooterCharacter::FireWeapon()
 		// 빔 렌더링
 		if (BeamParticles)
 		{
+			// UParticleSystemComponent와 UParticleSystem의 차이점을 구분할 것.
+			// UParticleSystemComponent는 컴포넌트이고 UParticleSystem은 에셋이다.
+			// 에셋을 월드에 놓으려면 먼저 컴포넌트에 해당 에셋을 장착시켜야 한다.
+			// UGameplayStatics::SpawnEmitterAtLocation함수도 보면 파티클 에셋을 매개변수로 전달받고 
+			// 파티클컴포넌트를 생성한 뒤 거기에 전달받은 에셋을 장착한 후 반환하고 있다.
 			UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BeamParticles, SocketTransform);
 			if (Beam)
 			{
