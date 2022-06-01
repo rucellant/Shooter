@@ -100,92 +100,41 @@ void AShooterCharacter::LookUpAtRate(float Rate)
 
 void AShooterCharacter::FireWeapon()
 {
-	// FireSound는 사운드 큐인데 에디터에서 사운드 에셋을 가지고 큐로 만들어서 사용한다. 
+	// 사운드 생성
 	if (FireSound)
 	{
-		// 사운드큐를 재생하는 것은 UGameplayStatics에서 구현된 PlaySound2D함수인데 
-		// UGameplayStatics클래스는 내부에 게임개발에 필요한 잡다한 것들이 여러가지 있어서 파보면 파볼수록 좋다.
-		// 그리고 지금 쓰는 사운드큐의 경우에 10개의 사운드를 랜덤으로 하나 뽑아서 사용하고 있는데 그 과정은 에디터에서 편집했으니
-		// 그 과정도 기억하면 좋다.
+	
 		UGameplayStatics::PlaySound2D(this, FireSound);
 	}
 
-	// 스켈레탈 메시에 장착한 소켓을 불러와서 해당 소켓의 위치를 구한 뒤 그 위치에 파티클을 생성한다.
-	// 단 여기서는 트랜스폼을 구한 뒤 거기서 Location값을 얻는다.
-	// 왜냐면 파티클은 UGameplayStatics::SpawnEmitterAtLocation()에서 생성하는데 이때 파라미터 값으로 트랜스폼을 넘겨야 해서
+	// 소켓 참조
 	const USkeletalMeshSocket* BarrelSocket = GetMesh()->GetSocketByName(TEXT("BarrelSocket"));
 	if (BarrelSocket)
 	{
 		const FTransform SocketTransform = BarrelSocket->GetSocketTransform(GetMesh());
 		
+		// 총구 화염 생성
 		if (MuzzleFlash)
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, SocketTransform);
 		}
 
-		//  뷰포트상의 크로스헤어의 좌표를 구하고 그 좌표를 월드로 옮긴 뒤 거기서 라인트레이싱을 시작한다.
-		// Get current size of the viewport
-		FVector2D ViewportSize;
-		if (GEngine && GEngine->GameViewport)
+
+		// 라인 트레이싱 및 임팩트파티클, 빔파티클 생성
+		FVector BeamEnd;
+		bool bBeamEnd = GetBeamEndLocation(SocketTransform.GetLocation(), BeamEnd);
+
+		if (bBeamEnd)
 		{
-			GEngine->GameViewport->GetViewportSize(ViewportSize);
-		}
-
-		// Get screen space location of crosshairs
-		FVector2D CrosshairLocation{ ViewportSize.X / 2.f,ViewportSize.Y / 2.f - 50.f };
-		FVector CrosshairWorldPosition, CrosshairWorldDirection;
-
-		// Get world Position and direction of crosshairs
-		bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(UGameplayStatics::GetPlayerController(this, 0),
-			CrosshairLocation,
-			CrosshairWorldPosition,
-			CrosshairWorldDirection);
-
-		if (bScreenToWorld) // was deprojection successful?
-		{
-			FHitResult ScreenTraceHit;
-			const FVector Start{ CrosshairWorldPosition };
-			const FVector End{ CrosshairWorldPosition + CrosshairWorldDirection * 50'000.f };
-
-			// Set beam end point to line trace end point
-			FVector BeamEndPoint{ End };
-			// Trace outward from crosshairs world location
-			GetWorld()->LineTraceSingleByChannel(ScreenTraceHit, Start, End, ECollisionChannel::ECC_Visibility);
-
-			if (ScreenTraceHit.bBlockingHit) // was there a trace hit?
-			{
-				// Beam end point is now trace hit location
-				BeamEndPoint = ScreenTraceHit.Location;
-			}
-
-			// 만약 첫번째 라인트레이스로 충돌이 발생한 경우 충돌지점과 총구간의 라이트레이싱을 한번 더 수행해서
-			// 그 사이에 어떤 오브젝트가 있으면 그 위치에 임팩트 파티클이 생성되게 한다
-			// Perfrom a second trace, this time from the gun barrel
-			FHitResult WeaponTraceHit;
-			const FVector WeaponTraceStart{ SocketTransform.GetLocation() };
-			const FVector WeaponTraceEnd{ BeamEndPoint };
-			GetWorld()->LineTraceSingleByChannel(WeaponTraceHit, WeaponTraceStart, WeaponTraceEnd, ECollisionChannel::ECC_Visibility);
-
-			if (WeaponTraceHit.bBlockingHit) // object between barrel and BeamEndPoint?
-			{
-				BeamEndPoint = WeaponTraceHit.Location;
-			}
-
-			// 충돌한 위치에 파티클을 생성한다
-			// Spawn impact particles after updating BeamEndPoint
 			if (ImpactParticles)
 			{
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, BeamEndPoint);
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, BeamEnd);
 			}
-
-			// 빔 렌더링
-			if (BeamParticles)
+			
+			UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BeamParticles, SocketTransform);
+			if (Beam)
 			{
-				UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BeamParticles, SocketTransform);
-				if (Beam)
-				{
-					Beam->SetVectorParameter(FName("Target"), BeamEndPoint);
-				}
+				Beam->SetVectorParameter(FName("Target"), BeamEnd);
 			}
 		}
 	}
@@ -197,6 +146,60 @@ void AShooterCharacter::FireWeapon()
 		AnimInstance->Montage_Play(HipFireMontage);
 		AnimInstance->Montage_JumpToSection(FName("StartFire"));
 	}
+}
+
+bool AShooterCharacter::GetBeamEndLocation(const FVector & MuzzleSocketLocation, FVector & OutBeamLocation)
+{
+	//  뷰포트상의 크로스헤어의 좌표를 구하고 그 좌표를 월드로 옮긴 뒤 거기서 라인트레이싱을 시작한다.
+	// Get current size of the viewport
+	FVector2D ViewportSize;
+	if (GEngine && GEngine->GameViewport)
+	{
+		GEngine->GameViewport->GetViewportSize(ViewportSize);
+	}
+
+	// Get screen space location of crosshairs
+	FVector2D CrosshairLocation{ ViewportSize.X / 2.f,ViewportSize.Y / 2.f - 50.f };
+	FVector CrosshairWorldPosition, CrosshairWorldDirection;
+
+	// Get world Position and direction of crosshairs
+	bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(UGameplayStatics::GetPlayerController(this, 0),
+		CrosshairLocation,
+		CrosshairWorldPosition,
+		CrosshairWorldDirection);
+
+	if (bScreenToWorld) // was deprojection successful?
+	{
+		FHitResult ScreenTraceHit;
+		const FVector Start{ CrosshairWorldPosition };
+		const FVector End{ CrosshairWorldPosition + CrosshairWorldDirection * 50'000.f };
+
+		// Set beam end point to line trace end point
+		OutBeamLocation = End;
+		// Trace outward from crosshairs world location
+		GetWorld()->LineTraceSingleByChannel(ScreenTraceHit, Start, End, ECollisionChannel::ECC_Visibility);
+
+		if (ScreenTraceHit.bBlockingHit) // was there a trace hit?
+		{
+			// Beam end point is now trace hit location
+			OutBeamLocation = ScreenTraceHit.Location;
+		}
+
+		// 만약 첫번째 라인트레이스로 충돌이 발생한 경우 충돌지점과 총구간의 라이트레이싱을 한번 더 수행해서
+		// 그 사이에 어떤 오브젝트가 있으면 그 위치에 임팩트 파티클이 생성되게 한다
+		// Perfrom a second trace, this time from the gun barrel
+		FHitResult WeaponTraceHit;
+		const FVector WeaponTraceStart{ MuzzleSocketLocation };
+		const FVector WeaponTraceEnd{ OutBeamLocation };
+		GetWorld()->LineTraceSingleByChannel(WeaponTraceHit, WeaponTraceStart, WeaponTraceEnd, ECollisionChannel::ECC_Visibility);
+
+		if (WeaponTraceHit.bBlockingHit) // object between barrel and BeamEndPoint?
+		{
+			OutBeamLocation = WeaponTraceHit.Location;
+		}
+	}
+
+	return bScreenToWorld;
 }
 
 // Called every frame
