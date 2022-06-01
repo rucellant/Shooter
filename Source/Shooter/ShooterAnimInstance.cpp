@@ -37,16 +37,10 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 		// UKismetMathLibrary::NormalizedDeltaRotator()는 AimRotation을 기준으로 MovementRotation가 얼만큼 회전한 상태인 지를 나타냄
 		MovementOffsetYaw = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotation, AimRotation).Yaw;
 
-		//FString RotationMessage = FString::Printf(TEXT("Base Aim Rotation: %f"), AimRotation.Yaw);
-		//FString MovementRotationMessage = FString::Printf(TEXT("Movement Rotation: %f"), MovementRotation.Yaw);
-		//FString OffsetMessage = FString::Printf(TEXT("Movement Offset Yaw: %f"), MovementOffsetYaw);
+		//LastMovementOffsetYaw = ShooterCharacter->GetVelocity().Size() > 0.f ? MovementOffsetYaw : 0.f;
+		if (ShooterCharacter->GetVelocity().Size() > 0.f)
+			LastMovementOffsetYaw = MovementOffsetYaw;
 
-		//if (GEngine)
-		//{
-		//	GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::White, OffsetMessage);
-		//	//GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::White, RotationMessage);
-		//	//GEngine->AddOnScreenDebugMessage(2, 0.f, FColor::White, MovementRotationMessage);
-		//}
 	}
 }
 
