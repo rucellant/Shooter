@@ -40,8 +40,8 @@ AShooterCharacter::AShooterCharacter() :
 
 	// 아래의 세 변수는 캐릭터가 회전할 떄, 같이 따라서 회전하지 않도록 함. 만약 ture면.
 	// Dont rotate when the controller rotates. Let the controller only affect the camera.
-	bUseControllerRotationYaw = false;
-	bUseControllerRotationRoll = true;
+	bUseControllerRotationYaw = true;
+	bUseControllerRotationRoll = false;
 	bUseControllerRotationPitch = false;
 
 	// 캐릭터가 이동하는 방향으로 캐릭터의 룩이 회전하게 함. true면.
@@ -123,45 +123,55 @@ void AShooterCharacter::FireWeapon()
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, SocketTransform);
 		}
 
-		// GetWorld()->LineTraceSingleByChannel은 라인트레이싱 함수고 FHitResult를 인자로 넘기면 FHitResult에 계산 결과를 갱신한다
-		// 시작과 끝점을 넘기면 그 사이에 뭐랑 부딪쳤는지에 대한 정보를 반환
-		// FQuat는 쿼터니온이고 쿼터니온은 회전에 관한 정보를 가지고 있다.
-		FHitResult FireHit;
-		const FVector Start{ SocketTransform.GetLocation() };
-		const FQuat Rotation{ SocketTransform.GetRotation() };
-		const FVector RotationAxis{ Rotation.GetAxisX() };
-		const FVector End{ Start + RotationAxis * 50'000.f };
-
-		// 얘는 라인트레이싱의 결과와 상관없이 투사체가 나아가는 걸 표현하기 위한 거기 때문에 무조건 그린다
-		FVector BeamEndPoint{ End };
-
-		GetWorld()->LineTraceSingleByChannel(FireHit, Start, End, ECollisionChannel::ECC_Visibility);
-		if (FireHit.bBlockingHit) // bBlockingHit이 true면 라인트레이싱에서 뭔가랑 부딪쳤다는 뜻
+		//  뷰포트상의 크로스헤어의 좌표를 구하고 그 좌표를 월드로 옮긴 뒤 거기서 라인트레이싱을 시작한다.
+		// Get current size of the viewport
+		FVector2D ViewportSize;
+		if (GEngine && GEngine->GameViewport)
 		{
-			//DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.f); // true면 라인이 계속 그려진다는 뜻.false면 그 다음 매개변수만큼 존재하다가 사라짐
-			//DrawDebugPoint(GetWorld(), FireHit.Location, 5.f, FColor::Red, false, 2.f);
-
-			BeamEndPoint = FireHit.Location;
-
-			// 충돌한 위치에 파티클을 생성한다
-			if (ImpactParticles)
-			{
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, FireHit.Location);
-			}
+			GEngine->GameViewport->GetViewportSize(ViewportSize);
 		}
 
-		// 빔 렌더링
-		if (BeamParticles)
+		// Get screen space location of crosshairs
+		FVector2D CrosshairLocation{ ViewportSize.X / 2.f,ViewportSize.Y / 2.f - 50.f };
+		FVector CrosshairWorldPosition, CrosshairWorldDirection;
+
+		// Get world Position and direction of crosshairs
+		bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(UGameplayStatics::GetPlayerController(this, 0),
+			CrosshairLocation,
+			CrosshairWorldPosition,
+			CrosshairWorldDirection);
+
+		if (bScreenToWorld) // was deprojection successful?
 		{
-			// UParticleSystemComponent와 UParticleSystem의 차이점을 구분할 것.
-			// UParticleSystemComponent는 컴포넌트이고 UParticleSystem은 에셋이다.
-			// 에셋을 월드에 놓으려면 먼저 컴포넌트에 해당 에셋을 장착시켜야 한다.
-			// UGameplayStatics::SpawnEmitterAtLocation함수도 보면 파티클 에셋을 매개변수로 전달받고 
-			// 파티클컴포넌트를 생성한 뒤 거기에 전달받은 에셋을 장착한 후 반환하고 있다.
-			UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BeamParticles, SocketTransform);
-			if (Beam)
+			FHitResult ScreenTraceHit;
+			const FVector Start{ CrosshairWorldPosition };
+			const FVector End{ CrosshairWorldPosition + CrosshairWorldDirection * 50'000.f };
+
+			// Set beam end point to line trace end point
+			FVector BeamEndPoint{ End };
+			// Trace outward from crosshairs world location
+			GetWorld()->LineTraceSingleByChannel(ScreenTraceHit, Start, End, ECollisionChannel::ECC_Visibility);
+
+			if (ScreenTraceHit.bBlockingHit) // was there a trace hit?
 			{
-				Beam->SetVectorParameter(FName("Target"), BeamEndPoint);
+				// Beam end point is now trace hit location
+				BeamEndPoint = ScreenTraceHit.Location;
+
+				// 충돌한 위치에 파티클을 생성한다
+				if (ImpactParticles)
+				{
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, ScreenTraceHit.Location);
+				}
+			}
+
+			// 빔 렌더링
+			if (BeamParticles)
+			{
+				UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BeamParticles, SocketTransform);
+				if (Beam)
+				{
+					Beam->SetVectorParameter(FName("Target"), BeamEndPoint);
+				}
 			}
 		}
 	}
