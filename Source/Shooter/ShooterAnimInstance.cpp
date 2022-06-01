@@ -34,7 +34,7 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 		FRotator AimRotation = ShooterCharacter->GetBaseAimRotation();
 		FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(ShooterCharacter->GetVelocity());
 
-		// UKismetMathLibrary::NormalizedDeltaRotator()는 두 로테이터간의 회전값을 뱉어냄
+		// UKismetMathLibrary::NormalizedDeltaRotator()는 AimRotation을 기준으로 MovementRotation가 얼만큼 회전한 상태인 지를 나타냄
 		MovementOffsetYaw = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotation, AimRotation).Yaw;
 
 		//FString RotationMessage = FString::Printf(TEXT("Base Aim Rotation: %f"), AimRotation.Yaw);
