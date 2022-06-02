@@ -294,6 +294,19 @@ void AShooterCharacter::SetLookRates()
 	}
 }
 
+void AShooterCharacter::CalculateCrosshairSpread(float DeltaTime)
+{
+	FVector2D WalkSpeedRange{ 0.f,600.f };
+	FVector2D VelocityMultiflierRange{ 0.f,1.f };
+	FVector Velocity{ GetVelocity() };
+	Velocity.Z = 0.f;
+
+	CrosshairVelocityFactor = FMath::GetMappedRangeValueClamped(WalkSpeedRange, VelocityMultiflierRange, Velocity.Size());
+
+	// 0.5f는 base value임, 즉 여기서는 CrosshairSpreadMultiplier가 0.5~1.5 사이로 왔다갔다 함
+	CrosshairSpreadMultiplier = 0.5f + CrosshairVelocityFactor;
+}
+
 // Called every frame
 void AShooterCharacter::Tick(float DeltaTime)
 {
