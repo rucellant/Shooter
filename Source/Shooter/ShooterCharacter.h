@@ -193,4 +193,9 @@ public:
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	
 	FORCEINLINE bool GetAiming() const { return bAiming; }
+
+	// 블루프린트에서 호출해야 하는 함수는 인라인 함수로 만들 수 없다.
+	// UFUNCTION()<-- 얘 때문에 인라인 함수가 될 수 없음
+	UFUNCTION(BlueprintCallable)
+	float GetCrosshairSpreadMultiplier() const;
 };
