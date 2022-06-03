@@ -500,6 +500,8 @@ void AShooterCharacter::DropWeapon()
 		// DetachFromComponent함수 -> 이 구성 요소를 연결된 모든 것에서 분리합니다. 함께 용접된 구성 요소를 자동으로 분리합니다.
 		FDetachmentTransformRules DetachmentTransformRules(EDetachmentRule::KeepWorld, true);
 		EquippedWeapon->GetItemMesh()->DetachFromComponent(DetachmentTransformRules);
+
+		EquippedWeapon->SetItemState(EItemState::EIS_Falling);
 	}
 }
 
