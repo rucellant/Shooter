@@ -478,12 +478,6 @@ void AShooterCharacter::EquipWeapon(AWeapon * WeaponToEquip)
 {
 	if (WeaponToEquip)
 	{
-		// 땅바닥에 떨어진 거 주웠으니까 땅바닥에서의 상호작용과 관련있는 컴포넌트들을 비활성화 시킨다
-		// Set AreaSphere to ignore all collision channels
-		WeaponToEquip->GetAreaSphere()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-		// Set CollisionBox to ignore all collision channels
-		WeaponToEquip->GetCollisionBox()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-
 		// Get the Hand Socket
 		const USkeletalMeshSocket* HandSocket = GetMesh()->GetSocketByName(FName("RightHandSocket"));
 
