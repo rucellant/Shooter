@@ -10,6 +10,18 @@ class UBoxComponent;
 class UWidgetComponent;
 class USphereComponent;
 
+UENUM(BlueprintType)
+enum class EItemRarity : uint8
+{
+	EIR_Damaged UMETA(DisplayNAme = "Damaged"),
+	EIR_Common UMETA(DisplayNAme = "Common"),
+	EIR_Uncommon UMETA(DisplayNAme = "Uncommon"),
+	EIR_Rare UMETA(DisplayNAme = "Rare"),
+	EIR_Legendary UMETA(DisplayNAme = "Legendary"),
+
+	EIR_MAX UMETA(DisplayNAme = "DefaultMax")
+};
+
 UCLASS()
 class SHOOTER_API AItem : public AActor
 {
@@ -39,6 +51,9 @@ protected:
 		UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex);
 
+	/** Sets the ActiveStarts array of bools based on rarity */
+	void SetActiveStars();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -67,6 +82,13 @@ private:
 	/** Item count (ammo, etc.) */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	int32 ItemCount;
+
+	/** Item rarity - determins number of stars in Pickup Widget  */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	EItemRarity ItemRarity;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	TArray<bool> ActiveStars;
 
 public:
 
