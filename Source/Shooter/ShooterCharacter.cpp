@@ -493,6 +493,27 @@ void AShooterCharacter::EquipWeapon(AWeapon * WeaponToEquip)
 	}
 }
 
+void AShooterCharacter::DropWeapon()
+{
+	if (EquippedWeapon)
+	{
+		// DetachFromComponent함수 -> 이 구성 요소를 연결된 모든 것에서 분리합니다. 함께 용접된 구성 요소를 자동으로 분리합니다.
+		FDetachmentTransformRules DetachmentTransformRules(EDetachmentRule::KeepWorld, true);
+		EquippedWeapon->GetItemMesh()->DetachFromComponent(DetachmentTransformRules);
+	}
+}
+
+void AShooterCharacter::SelectButtonPressed()
+{
+	//UE_LOG(LogTemp, Warning, TEXT("vvvv"));
+
+	DropWeapon();
+}
+
+void AShooterCharacter::SelectButtonReleased()
+{
+}
+
 void AShooterCharacter::StartCrosshairBulletFire()
 {
 	bFiringBullet = true;
@@ -544,6 +565,9 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 	PlayerInputComponent->BindAction(TEXT("AimingButton"), EInputEvent::IE_Pressed, this, &AShooterCharacter::AimingButtonPressed);
 	PlayerInputComponent->BindAction(TEXT("AimingButton"), EInputEvent::IE_Released, this, &AShooterCharacter::AimingButtonReleased);
+
+	PlayerInputComponent->BindAction(TEXT("Select"), EInputEvent::IE_Pressed, this, &AShooterCharacter::SelectButtonPressed);
+	PlayerInputComponent->BindAction(TEXT("Select"), EInputEvent::IE_Released, this, &AShooterCharacter::SelectButtonReleased);
 }
 
 float AShooterCharacter::GetCrosshairSpreadMultiplier() const
