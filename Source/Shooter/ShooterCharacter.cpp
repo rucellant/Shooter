@@ -221,56 +221,39 @@ void AShooterCharacter::FireWeapon()
 
 bool AShooterCharacter::GetBeamEndLocation(const FVector & MuzzleSocketLocation, FVector & OutBeamLocation)
 {
-	//  뷰포트상의 크로스헤어의 좌표를 구하고 그 좌표를 월드로 옮긴 뒤 거기서 라인트레이싱을 시작한다.
-	// Get current size of the viewport
-	FVector2D ViewportSize;
-	if (GEngine && GEngine->GameViewport)
+	// Check for crosshair trace hit
+	FHitResult CrosshairHitResult;
+	bool bCrosshairHit = TraceUnderCrosshairs(CrosshairHitResult, OutBeamLocation);
+
+	if (bCrosshairHit)
 	{
-		GEngine->GameViewport->GetViewportSize(ViewportSize);
+		// Tentative Beam Location - still need to trace from gun
+		OutBeamLocation = CrosshairHitResult.Location;
+	}
+	else // no crosshair trace hit
+	{
+		// OutBeamLocation is the End location for the line trace
 	}
 
-	// Get screen space location of crosshairs
-	FVector2D CrosshairLocation{ ViewportSize.X / 2.f,ViewportSize.Y / 2.f};
-	FVector CrosshairWorldPosition, CrosshairWorldDirection;
+	// 이 코드가 수정된 이유.
+	// 두번째 라인트레이싱의 범위는 총구에서 첫번째 라인트레이싱의 충돌 지점까지이다.
+	// 그런데 여러가지 이유로(아마 부동소수점 문제가 아닐까 생각중) 첫번째 라인트레이싱의 충돌 지점보다 
+	// 더 가까운 위치까지만 두번째 라인트레이싱의 범위로 포함되서 hit판정이 발생하지 않을 수가 있다.
+	// 그렇기 때문에 두번째 라이트레이싱의 범위를 첫번쨰 라인트레이싱의 충돌지점보다 살짝 길게 해서 수생하는 방식으로 교체.
+	// Perfrom a second trace, this time from the gun barrel
+	FHitResult WeaponTraceHit;
+	const FVector WeaponTraceStart{ MuzzleSocketLocation };
+	const FVector StartToEnd{ OutBeamLocation - MuzzleSocketLocation };
+	const FVector WeaponTraceEnd{ MuzzleSocketLocation + StartToEnd * 1.25f };
+	GetWorld()->LineTraceSingleByChannel(WeaponTraceHit, WeaponTraceStart, WeaponTraceEnd, ECollisionChannel::ECC_Visibility);
 
-	// Get world Position and direction of crosshairs
-	bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(UGameplayStatics::GetPlayerController(this, 0),
-		CrosshairLocation,
-		CrosshairWorldPosition,
-		CrosshairWorldDirection);
-
-	if (bScreenToWorld) // was deprojection successful?
+	if (WeaponTraceHit.bBlockingHit) // object between barrel and BeamEndPoint?
 	{
-		FHitResult ScreenTraceHit;
-		const FVector Start{ CrosshairWorldPosition };
-		const FVector End{ CrosshairWorldPosition + CrosshairWorldDirection * 50'000.f };
-
-		// Set beam end point to line trace end point
-		OutBeamLocation = End;
-		// Trace outward from crosshairs world location
-		GetWorld()->LineTraceSingleByChannel(ScreenTraceHit, Start, End, ECollisionChannel::ECC_Visibility);
-
-		if (ScreenTraceHit.bBlockingHit) // was there a trace hit?
-		{
-			// Beam end point is now trace hit location
-			OutBeamLocation = ScreenTraceHit.Location;
-		}
-
-		// 만약 첫번째 라인트레이스로 충돌이 발생한 경우 충돌지점과 총구간의 라이트레이싱을 한번 더 수행해서
-		// 그 사이에 어떤 오브젝트가 있으면 그 위치에 임팩트 파티클이 생성되게 한다
-		// Perfrom a second trace, this time from the gun barrel
-		FHitResult WeaponTraceHit;
-		const FVector WeaponTraceStart{ MuzzleSocketLocation };
-		const FVector WeaponTraceEnd{ OutBeamLocation };
-		GetWorld()->LineTraceSingleByChannel(WeaponTraceHit, WeaponTraceStart, WeaponTraceEnd, ECollisionChannel::ECC_Visibility);
-
-		if (WeaponTraceHit.bBlockingHit) // object between barrel and BeamEndPoint?
-		{
-			OutBeamLocation = WeaponTraceHit.Location;
-		}
+		OutBeamLocation = WeaponTraceHit.Location;
+		return true;
 	}
 
-	return bScreenToWorld;
+	return false;
 }
 
 void AShooterCharacter::AimingButtonPressed()
@@ -393,7 +376,7 @@ void AShooterCharacter::AutoFireReset()
 	}
 }
 
-bool AShooterCharacter::TraceUnderCrosshairs(FHitResult & OutHitResult)
+bool AShooterCharacter::TraceUnderCrosshairs(FHitResult & OutHitResult, FVector & OutHitLocation)
 {
 	// Get Viewport Size
 	FVector2D ViewportSize;
@@ -417,10 +400,14 @@ bool AShooterCharacter::TraceUnderCrosshairs(FHitResult & OutHitResult)
 		// Trace from Crosshair world location outward
 		const FVector Start{ CrosshairWorldPosition };
 		const FVector End{ Start + CrosshairWorldDirection * 50'000.f };
+		OutHitLocation = End;
 		GetWorld()->LineTraceSingleByChannel(OutHitResult, Start, End, ECollisionChannel::ECC_Visibility);
 
 		if (OutHitResult.bBlockingHit)
+		{
+			OutHitLocation = OutHitResult.Location;
 			return true;
+		}
 	}
 
 	return false;
@@ -451,7 +438,8 @@ void AShooterCharacter::Tick(float DeltaTime)
 	CalculateCrosshairSpread(DeltaTime);
 
 	FHitResult ItemTraceResult;
-	TraceUnderCrosshairs(ItemTraceResult);
+	FVector HitLocation;
+	TraceUnderCrosshairs(ItemTraceResult, HitLocation);
 	
 	if (ItemTraceResult.bBlockingHit)
 	{
