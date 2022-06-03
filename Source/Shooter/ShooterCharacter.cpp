@@ -3,6 +3,7 @@
 
 #include "ShooterCharacter.h"
 #include "Item.h"
+#include "Weapon.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
 #include "Sound/SoundCue.h"
@@ -94,12 +95,14 @@ void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-
 	if (FollowCamera)
 	{
 		CameraDefaultFOV = GetFollowCamera()->FieldOfView;
 		CameraCurrentFOV = CameraDefaultFOV;
 	}
+
+	// Spawn the default weapon and attach it ot the mesh
+	SpawnDefaultWeapon();
 }
 
 void AShooterCharacter::MoveForward(float Value)
@@ -454,6 +457,27 @@ void AShooterCharacter::TraceForItems()
 		// No longer overlapping any items, 
 		// Item last frame should not show widget.
 		TraceHitItemLastFrame->GetPickupWidget()->SetVisibility(false);
+	}
+}
+
+void AShooterCharacter::SpawnDefaultWeapon()
+{
+	// Check the TSubclassOf variable
+	if (DefaultWeaponClass)
+	{
+		// Spawn the Weapon
+		AWeapon* DefaultWeapon = GetWorld()->SpawnActor<AWeapon>(DefaultWeaponClass);
+		// Get the Hand Socket
+		const USkeletalMeshSocket* HandSocket = GetMesh()->GetSocketByName(FName("RightHandSocket"));
+
+		if (HandSocket)
+		{
+			// Attach the Weapon to the hand socket RightHandSocket
+			HandSocket->AttachActor(DefaultWeapon, GetMesh());
+		}
+
+		// Set EquippedWeapon to the newly spawned Weapon
+		EquippedWeapon = DefaultWeapon;
 	}
 }
 

@@ -7,6 +7,7 @@
 #include "ShooterCharacter.generated.h"
 
 class AItem;
+class AWeapon;
 class USoundCue;
 class UAnimMontage;
 class UParticleSystem;
@@ -85,6 +86,8 @@ protected:
 
 	/** Trace for items if OverlappedItemCount > 0 */
 	void TraceForItems();
+
+	void SpawnDefaultWeapon();
 
 	void StartCrosshairBulletFire();
 
@@ -228,6 +231,14 @@ private:
 	/** The AItem we hit last frame */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Items", meta = (AllowPrivateAccess = "true"))
 	AItem* TraceHitItemLastFrame;
+
+	/** Currently equipped Weapon */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	AWeapon* EquippedWeapon;
+
+	/** Set this in Blueprints for the default Weapon class */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AWeapon> DefaultWeaponClass;
 
 	float ShootTimeDuration;
 	bool bFiringBullet;
