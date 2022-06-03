@@ -10,9 +10,11 @@
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
 #include "Camera/CameraComponent.h"
+#include "Components/BoxComponent.h"
 #include "GameFramework/Controller.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Components/WidgetComponent.h"
+#include "Components/SphereComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -101,8 +103,8 @@ void AShooterCharacter::BeginPlay()
 		CameraCurrentFOV = CameraDefaultFOV;
 	}
 
-	// Spawn the default weapon and attach it ot the mesh
-	SpawnDefaultWeapon();
+	// Spawn the default weapon and equip it
+	EquipWeapon(SpawnDefaultWeapon());
 }
 
 void AShooterCharacter::MoveForward(float Value)
@@ -460,24 +462,39 @@ void AShooterCharacter::TraceForItems()
 	}
 }
 
-void AShooterCharacter::SpawnDefaultWeapon()
+AWeapon* AShooterCharacter::SpawnDefaultWeapon()
 {
 	// Check the TSubclassOf variable
 	if (DefaultWeaponClass)
 	{
 		// Spawn the Weapon
-		AWeapon* DefaultWeapon = GetWorld()->SpawnActor<AWeapon>(DefaultWeaponClass);
+		return GetWorld()->SpawnActor<AWeapon>(DefaultWeaponClass);
+	}
+
+	return nullptr;
+}
+
+void AShooterCharacter::EquipWeapon(AWeapon * WeaponToEquip)
+{
+	if (WeaponToEquip)
+	{
+		// 땅바닥에 떨어진 거 주웠으니까 땅바닥에서의 상호작용과 관련있는 컴포넌트들을 비활성화 시킨다
+		// Set AreaSphere to ignore all collision channels
+		WeaponToEquip->GetAreaSphere()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		// Set CollisionBox to ignore all collision channels
+		WeaponToEquip->GetCollisionBox()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
 		// Get the Hand Socket
 		const USkeletalMeshSocket* HandSocket = GetMesh()->GetSocketByName(FName("RightHandSocket"));
 
 		if (HandSocket)
 		{
 			// Attach the Weapon to the hand socket RightHandSocket
-			HandSocket->AttachActor(DefaultWeapon, GetMesh());
+			HandSocket->AttachActor(WeaponToEquip, GetMesh());
 		}
 
 		// Set EquippedWeapon to the newly spawned Weapon
-		EquippedWeapon = DefaultWeapon;
+		EquippedWeapon = WeaponToEquip;
 	}
 }
 
