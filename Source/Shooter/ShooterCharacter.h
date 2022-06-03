@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "ShooterCharacter.generated.h"
 
+class AItem;
 class USoundCue;
 class UAnimMontage;
 class UParticleSystem;
@@ -223,6 +224,10 @@ private:
 
 	/** Number of overlapped AItems */
 	int8 OverlappedItemCount;
+
+	/** The AItem we hit last frame */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Items", meta = (AllowPrivateAccess = "true"))
+	AItem* TraceHitItemLastFrame;
 
 	float ShootTimeDuration;
 	bool bFiringBullet;
