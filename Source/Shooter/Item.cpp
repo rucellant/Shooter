@@ -189,4 +189,3 @@ void AItem::SetItemState(EItemState State)
 	ItemState = State;
 	SetItemProperties(State);
 }
-
