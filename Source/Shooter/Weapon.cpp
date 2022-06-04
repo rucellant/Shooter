@@ -25,12 +25,16 @@ void AWeapon::Tick(float DeltaTime)
 
 void AWeapon::ThrowWeapon()
 {
+	// 현재 아이템 메쉬의 Yaw 회전값만 구함
 	FRotator MeshRotation{ 0.f,GetItemMesh()->GetComponentRotation().Yaw,0.f };
+	// 아이템 메쉬의 회전값을 위에서 구한 Yaw 회전값으로 세팅. 즉, Roll, Pitch값은 0으로 초기화
 	GetItemMesh()->SetWorldRotation(MeshRotation, false, nullptr, ETeleportType::TeleportPhysics);
 
 	const FVector MeshForward = GetItemMesh()->GetForwardVector();
 	const FVector MeshRight{ GetItemMesh()->GetRightVector() };
 	// Direction in which we throw the Weapon
+	// MeshRight.RotateAngleAxis(-20.f, MeshForward) <- MeshRight라는 벡터를 MeshForward라는 축을 기준으로 해서 -20.f(degree)만큼 회전.
+	// 내가 여기서 헤맸던 이유 : 총구 방향이 Right고 왼쪽이 forward인데 그걸 생각 못해서 헤맸음
 	FVector ImpulseDirection = MeshRight.RotateAngleAxis(-20.f, MeshForward);
 
 	float RandomRotation{ FMath::FRandRange(0.f, 30.f) };
