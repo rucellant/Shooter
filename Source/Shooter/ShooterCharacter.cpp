@@ -514,8 +514,7 @@ void AShooterCharacter::SelectButtonPressed()
 	//UE_LOG(LogTemp, Warning, TEXT("vvvv"));
 	if (TraceHitItem)
 	{
-		auto TraceHitWeapon = Cast<AWeapon>(TraceHitItem);
-		SwapWeapon(TraceHitWeapon);
+		TraceHitItem->StartItemCurve(this);
 	}
 }
 
