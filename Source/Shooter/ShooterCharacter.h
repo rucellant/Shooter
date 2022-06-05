@@ -127,13 +127,21 @@ protected:
 	/** Check to make sure our weapon has ammo */
 	bool WeaponHasAmmo();
 
+	/** FireWeapon functinos */
 	void PlayFireSound();
-
 	void SendBullet();
-
 	void PlayGunFireMontage();
 
 	void StartCrosshairBulletFire();
+
+	/** Bound to the R key and Gamepad Face Button Left */
+	void ReloadButtonPressed();
+
+	/** Handle reloading of the weapon */
+	void ReloadWeapon();
+
+	UFUNCTION(BlueprintCallable)
+	void FinishReloading();
 
 	UFUNCTION()
 	void FinishCrosshairBulletFire();
@@ -311,6 +319,10 @@ private:
 	/** Combat State, can only fire or reload if Unoccupied */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	ECombatState CombatState;
+
+	/** Montage for reload animations */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* ReloadMontage;
 
 	float ShootTimeDuration;
 	bool bFiringBullet;

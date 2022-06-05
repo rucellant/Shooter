@@ -365,6 +365,7 @@ void AShooterCharacter::AutoFireReset()
 	else
 	{
 		// Reload Weapon
+		ReloadWeapon();
 	}
 }
 
@@ -587,6 +588,39 @@ void AShooterCharacter::StartCrosshairBulletFire()
 	GetWorldTimerManager().SetTimer(CrosshairShootTimer, this, &AShooterCharacter::FinishCrosshairBulletFire, ShootTimeDuration);
 }
 
+void AShooterCharacter::ReloadButtonPressed()
+{
+	ReloadWeapon();
+}
+
+void AShooterCharacter::ReloadWeapon()
+{
+	if (CombatState != ECombatState::ECS_Unoccupied) return;
+
+	// Do we have ammo of the correct type?
+	// TODO: Create bool CarryingAmmo()
+	if (true) // replace with CarryingAmmo()
+	{
+		// TODO: Create an enum for Weapon Type
+		// TODO: switch on EquippedWeapon->WeaponType
+		FName MontageSection(TEXT("Reload SMG"));
+
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance && ReloadMontage)
+		{
+			AnimInstance->Montage_Play(ReloadMontage);
+			AnimInstance->Montage_JumpToSection(MontageSection);
+		}
+	}
+}
+
+void AShooterCharacter::FinishReloading()
+{
+	// TODO: Update AmmoMap
+
+	CombatState = ECombatState::ECS_Unoccupied;
+}
+
 void AShooterCharacter::FinishCrosshairBulletFire()
 {
 	bFiringBullet = false;
@@ -634,6 +668,8 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 	PlayerInputComponent->BindAction(TEXT("Select"), EInputEvent::IE_Pressed, this, &AShooterCharacter::SelectButtonPressed);
 	PlayerInputComponent->BindAction(TEXT("Select"), EInputEvent::IE_Released, this, &AShooterCharacter::SelectButtonReleased);
+
+	PlayerInputComponent->BindAction(TEXT("ReloadButton"), EInputEvent::IE_Pressed, this, &AShooterCharacter::ReloadButtonPressed);
 }
 
 float AShooterCharacter::GetCrosshairSpreadMultiplier() const
