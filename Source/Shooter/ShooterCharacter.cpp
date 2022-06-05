@@ -184,18 +184,19 @@ void AShooterCharacter::LookUp(float Value)
 
 void AShooterCharacter::FireWeapon()
 {
+	if (EquippedWeapon == nullptr) return;
+
 	// 荤款靛 积己
 	if (FireSound)
 	{
-	
 		UGameplayStatics::PlaySound2D(this, FireSound);
 	}
 
 	// 家南 曼炼
-	const USkeletalMeshSocket* BarrelSocket = GetMesh()->GetSocketByName(TEXT("BarrelSocket"));
+	const USkeletalMeshSocket* BarrelSocket = EquippedWeapon->GetItemMesh()->GetSocketByName(TEXT("BarrelSocket"));
 	if (BarrelSocket)
 	{
-		const FTransform SocketTransform = BarrelSocket->GetSocketTransform(GetMesh());
+		const FTransform SocketTransform = BarrelSocket->GetSocketTransform(EquippedWeapon->GetItemMesh());
 		
 		// 醚备 拳堪 积己
 		if (MuzzleFlash)
