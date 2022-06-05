@@ -55,6 +55,7 @@ private:
 	FName ReloadMontageSection;
 
 	/** True when moving the clip while reloading */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
 	bool bMovingClip;
 
 	/** Name for the clip bone */
