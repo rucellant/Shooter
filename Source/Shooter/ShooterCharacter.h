@@ -138,6 +138,14 @@ protected:
 	/** Checks to see if we have ammo of the EquippedWeapon's ammo type */
 	bool CarryingAmmo();
 
+	/** Called from Animation Blueprint with Grab Clip notify */
+	UFUNCTION(BlueprintCallable)
+	void GrabClip();
+
+	/** Called from Aniamtion Blueprint with Release Clip notify */
+	UFUNCTION(BlueprintCallable)
+	void ReleaseClip();
+
 	UFUNCTION()
 	void FinishCrosshairBulletFire();
 
@@ -318,6 +326,14 @@ private:
 	/** Montage for reload animations */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	UAnimMontage* ReloadMontage;
+
+	/** Transform of the clip when we first grab the clip during reloading */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	FTransform ClipTransform;
+
+	/** Scene Component to attach to the Character's hand during reloading */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* HandSceneComponent;
 
 	float ShootTimeDuration;
 	bool bFiringBullet;
