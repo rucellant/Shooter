@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Item.generated.h"
 
+class USoundCue;
 class UCurveFloat;
 class UBoxComponent;
 class UWidgetComponent;
@@ -155,6 +156,14 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	UCurveFloat* ItemScaleCurve;
 
+	/** Sound Played when Item is picked up */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	USoundCue* PickupSound;
+
+	/** Sound played when the Item is equipped */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+	USoundCue* EquipSound;
+
 public:
 	FORCEINLINE UWidgetComponent* GetPickupWidget() const { return PickupWidget; }
 	FORCEINLINE USphereComponent* GetAreaSphere() const { return AreaSphere; }
@@ -162,6 +171,8 @@ public:
 	FORCEINLINE EItemState GetItemState() const { return ItemState; }
 	void SetItemState(EItemState State);
 	FORCEINLINE USkeletalMeshComponent* GetItemMesh() const { return ItemMesh; }
+	FORCEINLINE USoundCue* GetPickupSound() const { return PickupSound; }
+	FORCEINLINE USoundCue* GetEquipSound() const { return EquipSound; }
 
 	/** Calle from the AShooterCharacter class */
 	void StartItemCurve(AShooterCharacter* Char);

@@ -500,6 +500,11 @@ void AShooterCharacter::SelectButtonPressed()
 	if (TraceHitItem)
 	{
 		TraceHitItem->StartItemCurve(this);
+
+		if (TraceHitItem->GetPickupSound())
+		{
+			UGameplayStatics::PlaySound2D(this, TraceHitItem->GetPickupSound());
+		}
 	}
 }
 
@@ -674,6 +679,7 @@ void AShooterCharacter::GrabClip()
 	// Store the transform of the clip
 	ClipTransform = EquippedWeapon->GetItemMesh()->GetBoneTransform(ClipBoneIndex);
 
+	// EAttachmentRule::KeepRelative-> HandSceneComponent랑 손에서의 상대적인 오프셋이 필요하기 때문에 이걸로 세팅
 	FAttachmentTransformRules AttachmentTransformRules(EAttachmentRule::KeepRelative, true);
 	HandSceneComponent->AttachToComponent(GetMesh(), AttachmentTransformRules, FName(TEXT("Hand_L")));
 	HandSceneComponent->SetWorldTransform(ClipTransform);
@@ -767,9 +773,16 @@ FVector AShooterCharacter::GetCameraInterpLocation()
 
 void AShooterCharacter::GetPickupItem(AItem* Item)
 {
+	if (Item->GetEquipSound())
+	{
+		UGameplayStatics::PlaySound2D(this, Item->GetEquipSound());
+	}
+
 	auto Weapon = Cast<AWeapon>(Item);
 	if (Weapon)
 	{
 		SwapWeapon(Weapon);
+
+		
 	}
 }
