@@ -461,6 +461,7 @@ AWeapon* AShooterCharacter::SpawnDefaultWeapon()
 
 void AShooterCharacter::EquipWeapon(AWeapon * WeaponToEquip)
 {
+	
 	if (WeaponToEquip)
 	{
 		// Get the Hand Socket
@@ -493,7 +494,6 @@ void AShooterCharacter::DropWeapon()
 
 void AShooterCharacter::SelectButtonPressed()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("vvvv"));
 	if (TraceHitItem)
 	{
 		TraceHitItem->StartItemCurve(this);
