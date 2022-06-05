@@ -6,6 +6,20 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+UShooterAnimInstance::UShooterAnimInstance() :
+	Speed(0.f),
+	bIsInAir(false),
+	bIsAccelerating(false),
+	MovementOffsetYaw(0.f),
+	LastMovementOffsetYaw(0.f),
+	bAiming(false),
+	CharacterYaw(0.f),
+	CharacterYawLastFrame(0.f),
+	RootYawOffset(0.f)
+{
+
+}
+
 void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 {
 	// ShooterCharacter유효한 지 체크해서 없으면 유효하게 해준다.
@@ -47,6 +61,8 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 
 		bAiming = ShooterCharacter->GetAiming();
 	}
+
+	TurnInPlace();
 }
 
 void UShooterAnimInstance::NativeInitializeAnimation()
@@ -56,4 +72,27 @@ void UShooterAnimInstance::NativeInitializeAnimation()
 	// TryGetPawnOwner()함수는 현재 애님인스턴스를 소유하고 있는 폰을 반환한다.
 	// 다만 반환형이 APawn이라서 캐스팅은 해줘야 한다.
 	ShooterCharacter = Cast<AShooterCharacter>(TryGetPawnOwner());
+}
+
+void UShooterAnimInstance::TurnInPlace()
+{
+	if (ShooterCharacter == nullptr) return;
+
+	if (Speed > 0.f)
+	{
+		// Don't want to turn in place; Chracter is moving
+	}
+	else
+	{
+		CharacterYawLastFrame = CharacterYaw;
+		CharacterYaw = ShooterCharacter->GetActorRotation().Yaw;
+		const float YawDelta{ CharacterYaw - CharacterYawLastFrame };
+
+		// YawDelta만큼 회전 했으면 -YawDelta만큼 회전시켜야지 루트의 회전값이 변하질 않는다.
+		RootYawOffset -= YawDelta;
+
+		if (GEngine) GEngine->AddOnScreenDebugMessage(1, -1, FColor::Blue, FString::Printf(TEXT("ChracterYaw: %f"), CharacterYaw));
+		if (GEngine) GEngine->AddOnScreenDebugMessage(2, -1, FColor::Red, FString::Printf(TEXT("RootYawOffset: %f"), RootYawOffset));
+		if (GEngine) GEngine->AddOnScreenDebugMessage(3, -1, FColor::Green, FString::Printf(TEXT("CharacterYawLastFrame: %f"), CharacterYawLastFrame));
+	}
 }

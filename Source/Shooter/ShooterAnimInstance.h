@@ -16,6 +16,7 @@ class SHOOTER_API UShooterAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
 public:
+	UShooterAnimInstance();
 
 	// UAnimInstance는 일종의 tick같은 함수인 NativeUpdateAnimation()함수를 가지고 있다.
 	// 따라서 애니메이션BP에서 NativeUpdateAnimation()가 우리가 만든 UpdateAnimationProperties()함수를 호출하게 할거임.
@@ -25,6 +26,11 @@ public:
 	// 이 함수는 UAnimInstance에서 상속받은 함수임.
 	// 이 함수는 액터클래스에서의 BeginPlay()같은 함수임.
 	virtual void NativeInitializeAnimation() override;
+
+protected:
+
+	/** Handle turning in place variables */
+	void TurnInPlace();
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
@@ -50,7 +56,15 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float LastMovementOffsetYaw;
 
-	/**  */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	bool bAiming;
+
+	/** Yaw of the Character this frame */
+	float CharacterYaw;
+
+	/** Yaw of the Character the previous frame */
+	float CharacterYawLastFrame;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Turn In Place", meta = (AllowPrivateAccess = "true"))
+	float RootYawOffset;
 };
