@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AmmoType.h"
 #include "GameFramework/Character.h"
 #include "ShooterCharacter.generated.h"
 
@@ -13,15 +14,6 @@ class UAnimMontage;
 class UParticleSystem;
 class UCameraComponent;
 class USpringArmComponent;
-
-UENUM(BlueprintType)
-enum class EAmmoType : uint8
-{
-	EAT_9mm UMETA(DisplayNAme = "9mm"),
-	EAT_AR UMETA(DisplayNAme = "Assault Rifle"),
-	
-	EAT_MAX UMETA(DisplayNAme = "DefaultMax")
-};
 
 UENUM(BlueprintType)
 enum class ECombatState : uint8
@@ -142,6 +134,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void FinishReloading();
+
+	/** Checks to see if we have ammo of the EquippedWeapon's ammo type */
+	bool CarryingAmmo();
 
 	UFUNCTION()
 	void FinishCrosshairBulletFire();

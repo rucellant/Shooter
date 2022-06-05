@@ -596,20 +596,18 @@ void AShooterCharacter::ReloadButtonPressed()
 void AShooterCharacter::ReloadWeapon()
 {
 	if (CombatState != ECombatState::ECS_Unoccupied) return;
+	if (EquippedWeapon == nullptr) return;
 
 	// Do we have ammo of the correct type?
-	// TODO: Create bool CarryingAmmo()
-	if (true) // replace with CarryingAmmo()
+	if (CarryingAmmo())
 	{
-		// TODO: Create an enum for Weapon Type
-		// TODO: switch on EquippedWeapon->WeaponType
-		FName MontageSection(TEXT("Reload SMG"));
+		CombatState = ECombatState::ECS_Reloading;
 
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 		if (AnimInstance && ReloadMontage)
 		{
 			AnimInstance->Montage_Play(ReloadMontage);
-			AnimInstance->Montage_JumpToSection(MontageSection);
+			AnimInstance->Montage_JumpToSection(EquippedWeapon->GetReloadMontageSection());
 		}
 	}
 }
@@ -619,6 +617,20 @@ void AShooterCharacter::FinishReloading()
 	// TODO: Update AmmoMap
 
 	CombatState = ECombatState::ECS_Unoccupied;
+}
+
+bool AShooterCharacter::CarryingAmmo()
+{
+	if (EquippedWeapon == nullptr) return false;
+
+	auto AmmoType = EquippedWeapon->GetAmmoType();
+
+	if (AmmoMap.Contains(AmmoType))
+	{
+		return AmmoMap[AmmoType] > 0;
+	}
+
+	return false;
 }
 
 void AShooterCharacter::FinishCrosshairBulletFire()
