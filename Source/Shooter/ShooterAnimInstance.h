@@ -8,6 +8,17 @@
 
 class AShooterCharacter;
 
+UENUM(BlueprintType)
+enum class EOffsetState : uint8
+{
+	EOS_Aiming UMETA(DisplayNAme = "Aiming"),
+	EOS_Hip UMETA(DisplayNAme = "Hip"),
+	EOS_Reloading UMETA(DisplayNAme = "Reloading"),
+	EOS_InAir UMETA(DisplayNAme = "InAir"),
+
+	EOS_MAX UMETA(DisplayNAme = "DefaultMax")
+};
+
 /**
  * 
  */
@@ -81,4 +92,8 @@ private:
 	/** True when Reloading, used to prevent Aim Offset while reloading */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Turn In Place", meta = (AllowPrivateAccess = "true"))
 	bool bReloading;
+
+	/** Offset state; used to determine which Aim Offset to use */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Turn In Place", meta = (AllowPrivateAccess = "true"))
+	EOffsetState OffsetState;
 };

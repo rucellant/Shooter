@@ -17,7 +17,8 @@ UShooterAnimInstance::UShooterAnimInstance() :
 	CharacterYawLastFrame(0.f),
 	RootYawOffset(0.f),
 	Pitch(0.f),
-	bReloading(false)
+	bReloading(false),
+	OffsetState(EOffsetState::EOS_Hip)
 {
 
 }
@@ -64,6 +65,23 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 		// 따라서 그 결과인 회전값(-180~180)에 따라 애니메이션이 달라진다.
 
 		bAiming = ShooterCharacter->GetAiming();
+
+		if (bReloading)
+		{
+			OffsetState = EOffsetState::EOS_Reloading;
+		}
+		else if (bIsInAir)
+		{
+			OffsetState = EOffsetState::EOS_InAir;
+		}
+		else if (ShooterCharacter->GetAiming())
+		{
+			OffsetState = EOffsetState::EOS_Aiming;
+		}
+		else
+		{
+			OffsetState = EOffsetState::EOS_Hip;
+		}
 	}
 
 	TurnInPlace();
@@ -85,7 +103,7 @@ void UShooterAnimInstance::TurnInPlace()
 	// GetBaseAimRotation() -> 반환값은 유저가 조준하는 방향과 일치하는 로테이터를 반환. 컨트롤러를 베이스로 한다.
 	Pitch = ShooterCharacter->GetBaseAimRotation().Pitch;
 
-	if (Speed > 0.f)
+	if (Speed > 0.f || bIsInAir)
 	{
 		// Don't want to turn in place; Chracter is moving
 		RootYawOffset = 0.f;
