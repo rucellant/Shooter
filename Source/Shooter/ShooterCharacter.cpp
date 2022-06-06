@@ -33,13 +33,13 @@ AShooterCharacter::AShooterCharacter() :
 	// Mouse look sensitivity scale factors
 	MouseHipTurnRate(1.f),
 	MouseHipLookUpRate(1.f),
-	MouseAimingTurnRate(0.2f),
-	MouseAimingLookUpRate(0.2f),
+	MouseAimingTurnRate(0.6f),
+	MouseAimingLookUpRate(0.6f),
 	// true when aiming the weapon
 	bAiming(false),
 	// Camera field of view values
 	CameraDefaultFOV(0.f), // set in BeginPlay
-	CameraZoomedFOV(35.f),
+	CameraZoomedFOV(25.f),
 	CameraCurrentFOV(0.f),
 	ZoomInterpSpeed(20.f),
 	// Crosshair spread factors
@@ -85,7 +85,7 @@ AShooterCharacter::AShooterCharacter() :
 	CameraBoom->TargetArmLength = 180.f;			// The camera follows at the distance behind the character
 	// bUsePawnControlRotation을 true로 설정하면 스프링암이 컨트롤러의 회전값을 따라간다.
 	CameraBoom->bUsePawnControlRotation = true;		// Rotate the arm based on the controller
-	CameraBoom->SocketOffset = FVector(0.f, 50.f, 45.F);
+	CameraBoom->SocketOffset = FVector(0.f, 50.f, 70.f);
 
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
