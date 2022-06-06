@@ -15,7 +15,9 @@ UShooterAnimInstance::UShooterAnimInstance() :
 	bAiming(false),
 	CharacterYaw(0.f),
 	CharacterYawLastFrame(0.f),
-	RootYawOffset(0.f)
+	RootYawOffset(0.f),
+	Pitch(0.f),
+	bReloading(false)
 {
 
 }
@@ -31,6 +33,8 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 	// 유효한 지 다시 한번 검사
 	if (ShooterCharacter)
 	{
+		bReloading = ShooterCharacter->GetCombatState() == ECombatState::ECS_Reloading;
+
 		// Get the lateral speed of ther character from velocity
 		FVector Velocity{ ShooterCharacter->GetVelocity() };
 		Velocity.Z = 0.f;
@@ -77,6 +81,9 @@ void UShooterAnimInstance::NativeInitializeAnimation()
 void UShooterAnimInstance::TurnInPlace()
 {
 	if (ShooterCharacter == nullptr) return;
+
+	// GetBaseAimRotation() -> 반환값은 유저가 조준하는 방향과 일치하는 로테이터를 반환. 컨트롤러를 베이스로 한다.
+	Pitch = ShooterCharacter->GetBaseAimRotation().Pitch;
 
 	if (Speed > 0.f)
 	{
