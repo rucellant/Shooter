@@ -148,6 +148,7 @@ protected:
 
 	void CrouchButtonPressed();
 
+	virtual void Jump() override;
 
 	UFUNCTION()
 	void FinishCrosshairBulletFire();
@@ -341,6 +342,14 @@ private:
 	/** True when crouching */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	bool bCrouching;
+
+	/** Regular Movement Speed */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float BaseMovementSpeed;
+
+	/** Crouch Movement speed */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float CrouchMovementSpeed;
 
 	float ShootTimeDuration;
 	bool bFiringBullet;
