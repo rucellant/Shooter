@@ -843,19 +843,19 @@ void AShooterCharacter::InitializeInterpLocations()
 	FInterpLocation InterpLoc1{ InterpComp1,0 };
 	InterpLocations.Add(InterpLoc1);
 
-	FInterpLocation InterpLoc2{ InterpComp1,0 };
+	FInterpLocation InterpLoc2{ InterpComp2,0 };
 	InterpLocations.Add(InterpLoc2);
 
-	FInterpLocation InterpLoc3{ InterpComp1,0 };
+	FInterpLocation InterpLoc3{ InterpComp3,0 };
 	InterpLocations.Add(InterpLoc3);
 
-	FInterpLocation InterpLoc4{ InterpComp1,0 };
+	FInterpLocation InterpLoc4{ InterpComp4,0 };
 	InterpLocations.Add(InterpLoc4);
 
-	FInterpLocation InterpLoc5{ InterpComp1,0 };
+	FInterpLocation InterpLoc5{ InterpComp5,0 };
 	InterpLocations.Add(InterpLoc5);
 
-	FInterpLocation InterpLoc6{ InterpComp1,0 };
+	FInterpLocation InterpLoc6{ InterpComp6,0 };
 	InterpLocations.Add(InterpLoc6);
 }
 
