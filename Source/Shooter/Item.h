@@ -70,7 +70,7 @@ protected:
 	void SetActiveStars();
 
 	/** Sets properties of the Item's components based on State */
-	void SetItemProperties(EItemState State);
+	virtual void SetItemProperties(EItemState State);
 
 	/** Called when ItemInterpTimer is finished */
 	void FinishInterping();
