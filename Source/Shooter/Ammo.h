@@ -35,6 +35,11 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo", meta = (AllowPrivateAccess = "true"))
 	EAmmoType AmmoType;
 
+	// 이거 따로 생성자에서 구현하는 거 없는 거 보면 걍 에셋임
+	/** The texture for the Ammo icon */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo", meta = (AllowPrivateAccess = "true"))
+	UTexture2D* AmmoIconTexture;
+
 public:
 	FORCEINLINE UStaticMeshComponent* GetAmmoMesh() const { return AmmoMesh; }
 	FORCEINLINE EAmmoType GetAmmoType() const { return AmmoType; }
