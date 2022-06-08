@@ -8,6 +8,7 @@
 #include "ShooterCharacter.generated.h"
 
 class AItem;
+class AAmmo;
 class AWeapon;
 class USoundCue;
 class UAnimMontage;
@@ -155,6 +156,8 @@ protected:
 
 	void Aim();
 	void StopAiming();
+
+	void PickupAmmo(AAmmo* Ammo);
 
 	UFUNCTION()
 	void FinishCrosshairBulletFire();
