@@ -152,6 +152,9 @@ void AShooterCharacter::BeginPlay()
 	InitializeAmmoMap();
 
 	GetCharacterMovement()->MaxWalkSpeed = BaseMovementSpeed;
+
+	// Create FInterpLocation structs for each interp location. add to array
+	InitializeInterpLocations();
 }
 
 void AShooterCharacter::MoveForward(float Value)
@@ -832,6 +835,30 @@ void AShooterCharacter::PickupAmmo(AAmmo * Ammo)
 	Ammo->Destroy();
 }
 
+void AShooterCharacter::InitializeInterpLocations()
+{
+	FInterpLocation WeaponLocation{ WeaponInterpComp,0 };
+	InterpLocations.Add(WeaponLocation);
+
+	FInterpLocation InterpLoc1{ InterpComp1,0 };
+	InterpLocations.Add(InterpLoc1);
+
+	FInterpLocation InterpLoc2{ InterpComp1,0 };
+	InterpLocations.Add(InterpLoc2);
+
+	FInterpLocation InterpLoc3{ InterpComp1,0 };
+	InterpLocations.Add(InterpLoc3);
+
+	FInterpLocation InterpLoc4{ InterpComp1,0 };
+	InterpLocations.Add(InterpLoc4);
+
+	FInterpLocation InterpLoc5{ InterpComp1,0 };
+	InterpLocations.Add(InterpLoc5);
+
+	FInterpLocation InterpLoc6{ InterpComp1,0 };
+	InterpLocations.Add(InterpLoc6);
+}
+
 void AShooterCharacter::FinishCrosshairBulletFire()
 {
 	bFiringBullet = false;
@@ -932,4 +959,13 @@ void AShooterCharacter::GetPickupItem(AItem* Item)
 	{
 		PickupAmmo(Ammo);
 	}
+}
+
+FInterpLocation AShooterCharacter::GetInterpLocation(int32 Index)
+{
+	if (Index <= InterpLocations.Num())
+	{
+		return InterpLocations[Index];
+	}
+	return FInterpLocation();
 }
