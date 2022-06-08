@@ -859,6 +859,22 @@ void AShooterCharacter::InitializeInterpLocations()
 	InterpLocations.Add(InterpLoc6);
 }
 
+int32 AShooterCharacter::GetInterpLocationIndex()
+{
+	int32 LowestIndex = 1;
+	int32 LowestCount = INT_MAX; // INT_MAX는 int32가 담을 수 있는 가장 큰 데이터
+	for (int32 i = 1; i < InterpLocations.Num(); i++)
+	{
+		if (InterpLocations[i].ItemCount < LowestCount)
+		{
+			LowestIndex = i;
+			LowestCount = InterpLocations[i].ItemCount;
+		}
+	}
+
+	return LowestIndex;
+}
+
 void AShooterCharacter::FinishCrosshairBulletFire()
 {
 	bFiringBullet = false;
@@ -934,13 +950,14 @@ void AShooterCharacter::IncrementOverlappedItemCount(int8 Amount)
 	}
 }
 
-FVector AShooterCharacter::GetCameraInterpLocation()
-{
-	const FVector CameraWorldLocation{ FollowCamera->GetComponentLocation() };
-	const FVector CameraForward = FollowCamera->GetForwardVector();
-	// Desired = CameraWorldLocation + Forward * A + Up * B;
-	return CameraWorldLocation + CameraForward * CameraInterpDistance + FVector(0.f, 0.f, 1.f) * CameraInterpElevation;
-}
+// No longer neededl AItem has GetInterpLocation
+//FVector AShooterCharacter::GetCameraInterpLocation()
+//{
+//	const FVector CameraWorldLocation{ FollowCamera->GetComponentLocation() };
+//	const FVector CameraForward = FollowCamera->GetForwardVector();
+//	// Desired = CameraWorldLocation + Forward * A + Up * B;
+//	return CameraWorldLocation + CameraForward * CameraInterpDistance + FVector(0.f, 0.f, 1.f) * CameraInterpElevation;
+//}
 
 void AShooterCharacter::GetPickupItem(AItem* Item)
 {
@@ -968,4 +985,14 @@ FInterpLocation AShooterCharacter::GetInterpLocation(int32 Index)
 		return InterpLocations[Index];
 	}
 	return FInterpLocation();
+}
+
+void AShooterCharacter::IncrementInterpLocItemCount(int32 Index, int32 Amount)
+{
+	if (Amount < -1 || Amount > 1) return;
+
+	if (InterpLocations.Num() >= Index)
+	{
+		InterpLocations[Index].ItemCount += Amount;
+	}
 }
