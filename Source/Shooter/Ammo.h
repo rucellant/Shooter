@@ -7,6 +7,8 @@
 #include "AmmoType.h"
 #include "Ammo.generated.h"
 
+class USphereComponent;
+
 /**
  * 
  */
@@ -26,6 +28,14 @@ protected:
 	/** Override of SetItemproperties so we can set AmmoMesh properties */
 	virtual void SetItemProperties(EItemState State) override;
 
+	UFUNCTION()
+	void AmmoSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult);
+
 private:
 	/** Mesh for the ammo pickup */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ammo", meta = (AllowPrivateAccess = "true"))
@@ -39,6 +49,10 @@ private:
 	/** The texture for the Ammo icon */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo", meta = (AllowPrivateAccess = "true"))
 	UTexture2D* AmmoIconTexture;
+
+	/** Overlap sphere for picking up the Ammo */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Ammo", meta = (AllowPrivateAccess = "true"))
+	USphereComponent* AmmoCollisionSphere;
 
 public:
 	FORCEINLINE UStaticMeshComponent* GetAmmoMesh() const { return AmmoMesh; }
