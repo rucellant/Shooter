@@ -243,6 +243,11 @@ void AItem::ItemInterp(float DeltaTime)
 		ItemLocation.Y = InterpYValue;
 
 		// Adding curve value to the Z component of the Initial Location (scaled by DeltaZ)
+		// SetActorLocation함수의 마지막 파라미터로 ETeleportType::TeleportPhysics을 넣었는데
+		// 주석에는 Teleport physics body so that velocity remains the same and no collision occurs이라고 적혀있다.
+		// 여기서 중요한 점은 해당 파라미터를 넘기면 충돌이 발생하지 않는다는 것.
+		// 디폴트는 None이며 얘는 충돌이 발생한다.
+		// 또한 래그돌에 미치는 영향도 차이가 있는데 여기서는 언급안하고 넘어가자
 		ItemLocation.Z += CurveValue * DeltaZ;
 		SetActorLocation(ItemLocation, true, nullptr, ETeleportType::TeleportPhysics);
 		
