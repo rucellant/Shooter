@@ -94,7 +94,11 @@ protected:
 
 	virtual void InitializeCustomDepth();
 
+	// 에디터에서 새로 스폰하거나 이동할 때 호출됨
 	virtual void OnConstruction(const FTransform& Transform ) override;
+
+	void EnableGlowMaterial();
+	void DisableGlowMaterial();
 
 public:	
 	// Called every frame
