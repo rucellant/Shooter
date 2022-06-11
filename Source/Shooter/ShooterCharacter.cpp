@@ -530,6 +530,16 @@ void AShooterCharacter::EquipWeapon(AWeapon * WeaponToEquip)
 			HandSocket->AttachActor(WeaponToEquip, GetMesh());
 		}
 
+		if (EquippedWeapon == nullptr)
+		{
+			// -1 == no EquippedWeapon yet. No need to reverse the icon animation;
+			EquipItemDelegate.Broadcast(-1,WeaponToEquip->GetSlotIndex());
+		}
+		else
+		{
+			EquipItemDelegate.Broadcast(EquippedWeapon->GetSlotIndex(), WeaponToEquip->GetSlotIndex());
+		}
+		
 		// Set EquippedWeapon to the newly spawned Weapon
 		EquippedWeapon = WeaponToEquip;
 		EquippedWeapon->SetItemState(EItemState::EIS_Equipped);
