@@ -366,7 +366,7 @@ void AItem::UpdatePulse()
 	FVector CurveValue{};
 	switch (ItemState)
 	{
-	case EItemState::EIS_PickedUp:
+	case EItemState::EIS_Pickup:
 		if (PulseCurve)
 		{
 			ElapsedTime = GetWorldTimerManager().GetTimerElapsed(PulseTimer);
